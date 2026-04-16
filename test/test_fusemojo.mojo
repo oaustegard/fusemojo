@@ -366,19 +366,33 @@ def test_threshold_zero() raises:
 
 
 def test_threshold_one() raises:
-    """9. threshold=1.0 → everything matches."""
+    """9. threshold=1.0 → even poor matches pass.
+
+    Bitap explores up to pattern_len-1 errors, so patterns with zero
+    character overlap still won't match -- the algorithm needs at least
+    one anchoring character.  But any partial overlap passes at 1.0.
+    """
     print("test_threshold_one ... ", end="")
     var text_cps = string_to_codepoints("abcdef")
-    var pat_cps = string_to_codepoints("xyz")
+    # "abx" shares 'a','b' → 1/3 errors = 0.333 accuracy → passes at 1.0
+    var pat_cps = string_to_codepoints("abx")
     var alpha = create_pattern_alphabet(pat_cps)
-    # 3/3 errors = 1.0 accuracy; 1.0 ≤ 1.0 → accepted
     var result = bitap_search(
         text_cps, pat_cps, alpha, threshold=1.0, ignore_location=True
     )
     if not result.is_match:
-        print("FAIL (should match with threshold=1.0)")
+        print("FAIL (partial overlap should match at threshold=1.0)")
         return
-    print("ok (score:", result.score, ")")
+    # Zero character overlap: bitap can't anchor → no match even at 1.0
+    var no_pat = string_to_codepoints("xyz")
+    var no_alpha = create_pattern_alphabet(no_pat)
+    var no_result = bitap_search(
+        text_cps, no_pat, no_alpha, threshold=1.0, ignore_location=True
+    )
+    if no_result.is_match:
+        print("FAIL (zero overlap should not match even at threshold=1.0)")
+        return
+    print("ok (partial:", result.score, "zero-overlap: no match)")
 
 
 def test_distance_zero() raises:
