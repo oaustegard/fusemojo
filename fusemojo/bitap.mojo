@@ -86,7 +86,7 @@ def find_exact(text: List[Int], pattern: List[Int], start: Int) -> Int:
     """Find exact substring match in codepoint arrays. Returns index or -1."""
     var tlen = len(text)
     var plen = len(pattern)
-    if plen == 0 or start + plen > tlen:
+    if plen == 0 or start < 0 or start + plen > tlen:
         return -1
     for i in range(start, tlen - plen + 1):
         var matched = True
@@ -132,6 +132,8 @@ def compute_score(
     ignore_location: Bool,
 ) -> Float64:
     """Compute match score.  Lower is better.  0.0 = exact at expected location."""
+    if pattern_len == 0:
+        return 1.0
     var accuracy = Float64(errors) / Float64(pattern_len)
     if ignore_location:
         return accuracy
