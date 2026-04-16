@@ -213,34 +213,30 @@ def test_match_indices() raises:
 
 
 def test_compute_score_zero_pattern_len():
-    """1. compute_score with pattern_len=0 → Float64(0)/Float64(0) = NaN."""
+    """1. compute_score with pattern_len=0 → should return 1.0 (no match)."""
     print("test_compute_score_zero_pattern_len ... ", end="")
     var s = compute_score(0, 0, 0, 0, 100, False)
-    # Float64(0) / Float64(0) produces NaN in IEEE 754.
-    # NaN != NaN, so s != s is True when we get NaN.
-    if s != s:
-        print("ok (NaN -- division by zero as expected)")
-    else:
-        print("ok (score:", s, "-- caller should guard pattern_len=0)")
+    if s != 1.0:
+        print("FAIL (expected 1.0, got", s, ")")
+        return
+    print("ok (returns 1.0 -- guarded against division by zero)")
 
 
 def test_find_exact_negative_start():
-    """2. find_exact with start < 0 → negative index in range()/text[i+j].
-
-    BUG: find_exact does not guard start < 0.  range(start, ...) iterates
-    with negative i, so text[i+j] accesses a negative index -- undefined
-    behaviour or abort on bounds-checked builds.
-
-    This test documents the crash risk.  If it survives, the runtime
-    silently tolerated the negative index.
-    """
+    """2. find_exact with start < 0 → should return -1 (guarded)."""
     print("test_find_exact_negative_start ... ", end="")
     var text = string_to_codepoints("hello")
     var pat = string_to_codepoints("he")
-    # start=-1 bypasses the `start + plen > tlen` guard (-1+2=1 <= 5).
-    # The first iteration does text[-1 + 0] = text[-1] → crash risk.
     var idx = find_exact(text, pat, -1)
-    print("ok (idx:", idx, "-- survived without crash)")
+    if idx != -1:
+        print("FAIL (expected -1 for negative start, got", idx, ")")
+        return
+    # Normal positive start still works
+    var idx2 = find_exact(text, pat, 0)
+    if idx2 != 0:
+        print("FAIL (expected 0 for start=0, got", idx2, ")")
+        return
+    print("ok (negative start returns -1)")
 
 
 def test_text_shorter_than_pattern() raises:
