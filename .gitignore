@@ -1,0 +1,5 @@
+*.mojopkg
+*.o
+__pycache__/
+.DS_Store
+basic
