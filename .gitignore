@@ -3,3 +3,9 @@
 __pycache__/
 .DS_Store
 basic
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+pixi.toml
+pixi.lock
+.gitattributes
