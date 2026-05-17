@@ -18,7 +18,7 @@ The top-level product surface. Given a `List[String]` and a query, return scored
 
 **Key symbols:**
 - `fusemojo/fuse.mojo#Fuse` — Owns the collection; carries threshold/distance/location/case/sort settings.
-- `fusemojo/fuse.mojo#Fuse.search` — Build a `BitapSearcher` per query, scan every item, filter by `is_match`, sort by score (selection sort, OK for small result sets).
+- `fusemojo/fuse.mojo#search` — Build a `BitapSearcher` per query, scan every item, filter by `is_match`, sort by score (selection sort, OK for small result sets). Method on `Fuse`.
 - `fusemojo/fuse.mojo#FuseResult` — `{item, index, score, matches}` returned to caller.
 
 **Workflow:** Caller constructs `Fuse(collection^, threshold=..., ignore_location=..., ...)` (takes ownership of the list). `search(query)` constructs a fresh `BitapSearcher` from the query, iterates `collection`, keeps matches, and optionally sorts. Empty query → empty list.
@@ -36,7 +36,7 @@ Low-level matcher for a single (pattern, text) pair. Exposed so callers can inte
 
 **Key symbols:**
 - `fusemojo/bitap.mojo#BitapSearcher` — Holds preprocessed pattern codepoints and the pattern alphabet (bitmask Dict). Reusable across many `search_in(text)` calls.
-- `fusemojo/bitap.mojo#BitapSearcher.search_in` — Case-normalize text → exact-match fast path → delegate to `bitap_search`.
+- `fusemojo/bitap.mojo#search_in` — Case-normalize text → exact-match fast path → delegate to `bitap_search`. Method on `BitapSearcher`.
 - `fusemojo/bitap.mojo#bitap_search` — The kernel. Right-to-left scan over the text, incrementing error count outer loop, bit-parallel shift-OR-AND inner loop. Tightens threshold whenever a better match lands. Includes an exact-match acceleration pass before the fuzzy phase.
 - `fusemojo/bitap.mojo#SearchResult` — `{is_match, score, indices}`.
 
